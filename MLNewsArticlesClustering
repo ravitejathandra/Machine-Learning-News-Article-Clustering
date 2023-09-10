@@ -1,0 +1,617 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "dc3433d6",
+   "metadata": {},
+   "source": [
+    "## 1. Plotting a Dendogram"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "b2393c98",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "   abandon  abc  ability  abortion  absolute  abstain  abu  abuse  accept  \\\n",
+      "0        0    0        0         0         0        0    0      0       0   \n",
+      "1        0    0        0         0         0        0    0      0       0   \n",
+      "2        0    0        0         0         0        1    0      0       0   \n",
+      "3        0    0        0         0         0        0    0      0       0   \n",
+      "4        0    0        0         0         0        0    0      0       0   \n",
+      "\n",
+      "   access  ...  yeah  year  yesterday  york  youll  young  youre  youve  \\\n",
+      "0       0  ...     0     0          0     0      0      0      0      0   \n",
+      "1       0  ...     0     0          0     0      0      0      0      0   \n",
+      "2       0  ...     0     0          0     0      0      0      0      0   \n",
+      "3       0  ...     0     0          2     0      0      1      0      0   \n",
+      "4       0  ...     0     1          1     0      0      1      0      0   \n",
+      "\n",
+      "   zogby  zone  \n",
+      "0      0     1  \n",
+      "1      0     0  \n",
+      "2      0     0  \n",
+      "3      0     0  \n",
+      "4      0     0  \n",
+      "\n",
+      "[5 rows x 1545 columns]\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "\n",
+    "# Read in the CSV file\n",
+    "data = pd.read_csv('dailykos.csv')\n",
+    "\n",
+    "# Print the first few rows of the data to verify everything looks good\n",
+    "print(data.head())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "6fd5f721",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "\n",
+    "# Drop any rows with missing values\n",
+    "data.dropna(inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "12f657f5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from scipy.spatial.distance import pdist, squareform\n",
+    "# Compute the Euclidean distances between all pairs of articles\n",
+    "distances = pdist(data.iloc[:, 2:], metric='euclidean')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "b8829265",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Convert the distances to a square matrix\n",
+    "dist_matrix = squareform(distances)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "118ea2c7",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/var/folders/31/1nz5ggl549b5s7vbkn0c01lr0000gn/T/ipykernel_18548/2580125479.py:3: ClusterWarning: scipy.cluster: The symmetric non-negative hollow observation matrix looks suspiciously like an uncondensed distance matrix\n",
+      "  linkage_matrix = linkage(dist_matrix, method='ward')\n"
+     ]
+    }
+   ],
+   "source": [
+    "from scipy.cluster.hierarchy import linkage, dendrogram\n",
+    "# Generate the linkage matrix using the Ward method\n",
+    "linkage_matrix = linkage(dist_matrix, method='ward')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "cfa8b7eb",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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W7ZsUVZWlln+ySeflNPp1K233qpQKKTrrrtOGzZskMPhMMts2rRJK1euNK/yWrp0qdavX29+7nA49NJLL+mee+7RNddcI6/Xq2XLlunxxx9PaQYAAABrsBmGYaS7EunS2Ngov9+vYDB4Tq1Dre0dmvr3r0qSDjy8QD53SlkSgPgdARi4we6/efYWAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwBEIPAACwhJRDz5/+9CctWbJEJSUlstls+v3vf5/w+R133CGbzZbwb9asWQllwuGwVqxYoYKCAmVmZmrp0qU6fvx4Qpn6+nqVl5fL7/fL7/ervLxcDQ0NCWWOHj2qJUuWKDMzUwUFBVq5cqXa29tTnSQAAGABKYeelpYWfeYzn9H69et7LbNw4UJVVVWZ/15++eWEz1etWqUXX3xRmzdv1vbt29Xc3KzFixcrGo2aZZYtW6bKykpVVFSooqJClZWVKi8vNz+PRqO68cYb1dLSou3bt2vz5s367W9/q9WrV6c6SQAAwAKcqQ6waNEiLVq0qM8yHo9HgUAg6WfBYFC//OUv9eyzz+r666+XJD333HMaP368XnvtNS1YsEAHDx5URUWFdu3apZkzZ0qSnn76ac2ePVsffvihJk2apC1btujAgQM6duyYSkpKJElPPPGE7rjjDv3jP/6j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\n",
+      "text/plain": [
+       "<Figure size 640x480 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "# Plot the dendrogram\n",
+    "dendrogram(linkage_matrix)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5e094dec",
+   "metadata": {},
+   "source": [
+    "### The computation of Euclidean distances between all pairs of articles may take a while because the dataset contains a large number of articles and each article has many features. This means that the distances need to be computed between a large number of high-dimensional points, which is a computationally very expensive task. Also using of the pdist function in the scipy library computes the pairwise distances for all possible combinations, which increases the computational complexity. That's why this takes a lot of time. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fde44c7a",
+   "metadata": {},
+   "source": [
+    "## 2. The number of clusters for grouping news articles or blog posts would depend on the objective. If the goal is to have general categories that has a wide range of topics, a smaller number of clusters such as  around 4 or 5 may be suitable. However, if more specific categories are needed to capture and if more detail is necessary, then a larger number of clusters like around 9 or 10 or more may be necessary. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "e1c6d341",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from scipy.cluster.hierarchy import linkage, fcluster\n",
+    "\n",
+    "# Performing hierarchical clustering\n",
+    "Z = linkage(distances, method='ward')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "7925bcca",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Assigning cluster labels\n",
+    "labels = fcluster(Z, t=7, criterion='maxclust')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "58d7e1f8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Adding cluster labels to the data\n",
+    "data['cluster'] = labels"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "d16fb1e2",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "346"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Printing the number of observations in cluster 3\n",
+    "len(data[data['cluster'] == 3])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "73ac5f4f",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "2"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Printing the cluster with the most num of observations\n",
+    "data['cluster'].value_counts().idxmax()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "4ba5bba4",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "5"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Printing the cluster with least num of observations\n",
+    "data['cluster'].value_counts().idxmin()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2557b426",
+   "metadata": {},
+   "source": [
+    "## 3. So, looks like there are 346 number of obersvations in cluster 3.  cluster 2 has the most number of observations. cluster 5 has the least number of observations. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "697073d3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from scipy.cluster.hierarchy import fcluster\n",
+    "\n",
+    "# Performing hierarchical clustering with 7 clusters as in the previous case (assumption as no of clusters in not given in the question)\n",
+    "clusters = fcluster(Z, t=7, criterion='distance')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "34e1fd13",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Adding the cluster assignments to the data DataFrame\n",
+    "data['cluster'] = clusters"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "bf69514e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Selecting only the articles in cluster 1\n",
+    "cluster1 = data[data['cluster'] == 1]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "86c5f89f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Computing the mean frequency of each word in cluster 1\n",
+    "mean_freqs = cluster1.iloc[:, 2:-1].mean()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "35bbeca3",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['november', 'vote', 'bush', 'kerry', 'elect', 'challenge']\n"
+     ]
+    }
+   ],
+   "source": [
+    "# printing the 6 words that occur most frequently\n",
+    "top_words = mean_freqs.sort_values(ascending=False)[:6].index.tolist()\n",
+    "print(top_words)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7166f544",
+   "metadata": {},
+   "source": [
+    "## 4. These are the top 6 words that occured most frequently in cluster 1 - 'november', 'vote', 'bush', 'kerry', 'elect', 'challenge'. Also the most frequent word in this cluster, in terms of average value is November. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "id": "2c05a467",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Top 6 words in cluster 1: ['november', 'poll', 'vote', 'challenge', 'democrat', 'bush']\n",
+      "Top 6 words in cluster 2: ['bush', 'democrat', 'elect', 'kerry', 'republican', 'state']\n",
+      "Top 6 words in cluster 3: ['bush', 'iraq', 'war', 'administration', 'presided', 'american']\n",
+      "Top 6 words in cluster 4: ['republican', 'democrat', 'vote', 'bush', 'state', 'campaign']\n",
+      "Top 6 words in cluster 5: ['democrat', 'parties', 'state', 'republican', 'senate', 'seat']\n",
+      "Top 6 words in cluster 6: ['kerry', 'bush', 'poll', 'percent', 'voter', 'general']\n",
+      "Top 6 words in cluster 7: ['dean', 'kerry', 'edward', 'democrat', 'poll', 'clark']\n"
+     ]
+    }
+   ],
+   "source": [
+    "#building a loop in order to make things easier. This is to find out answers to the give questions\n",
+    "from scipy.cluster.hierarchy import fcluster\n",
+    "\n",
+    "# Performing hierarchical clustering with 7 clusters (using 7 clusters again)\n",
+    "clusters = fcluster(Z, t=7, criterion='maxclust')\n",
+    "\n",
+    "# Assigning the cluster element to the data DataFrame\n",
+    "data['cluster'] = clusters\n",
+    "\n",
+    "# Looping over each cluster and compute the top 6 words\n",
+    "for i in range(1, 8):\n",
+    "    # Selecting only the articles in the current cluster\n",
+    "    cluster_i = data[data['cluster'] == i]\n",
+    "    \n",
+    "    # Computing the mean frequency of each word in the current cluster so to find the most frquent words\n",
+    "    mean_freqs = cluster_i.iloc[:, 2:-1].mean()\n",
+    "    \n",
+    "    # printing the 6 words that occur most frequently in the current cluster in a loop\n",
+    "    top_words = mean_freqs.sort_values(ascending=False)[:6].index.tolist()\n",
+    "    print(f\"Top 6 words in cluster {i}:\", top_words)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aa004f86",
+   "metadata": {},
+   "source": [
+    "### 5 .Which cluster could best be described as the cluster related to the Iraq war? - Cluster 3\n",
+    "### which cluster best corresponds to the democratic party? - Cluster 7"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7c3edccb",
+   "metadata": {},
+   "source": [
+    "# 6. Using KNN"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "id": "73da0a00",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sklearn.cluster import KMeans\n",
+    "\n",
+    "# Performing k-means clustering with 7 clusters\n",
+    "kmeans = KMeans(n_clusters=7, random_state=1000).fit(data.iloc[:, 2:-1])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "20161798",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Assinging the cluster element to the data DataFrame\n",
+    "data['cluster'] = kmeans.labels_"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "bfa33c3d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Selecting only the articles in cluster 3\n",
+    "cluster3 = data[data['cluster'] == 2]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "id": "20096a7e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "329\n"
+     ]
+    }
+   ],
+   "source": [
+    "# printing the number of observations in cluster 3\n",
+    "print(len(cluster3))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 46,
+   "id": "875267ef",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "4\n"
+     ]
+    }
+   ],
+   "source": [
+    "# printing the cluster with the most no of observations\n",
+    "max_cluster = data['cluster'].value_counts().idxmax()\n",
+    "print(max_cluster)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "id": "379c5f62",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "3\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Printing the cluster with the least no of observations\n",
+    "min_cluster = data['cluster'].value_counts().idxmin()\n",
+    "print(min_cluster)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c519811e",
+   "metadata": {},
+   "source": [
+    "## So, looks like there are 329 number of obersvations in cluster 3.  cluster 4 has the most number of observations. cluster 3 has the least number of observations. All these values are the outcomes if KNN algo is used instead of Hierarchical Clustering algo"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c40ee924",
+   "metadata": {},
+   "source": [
+    "# 7."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "id": "07eba7b0",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Top 6 words in cluster 1: ['bush', 'iraq', 'war', 'administration', 'american', 'iraqi']\n",
+      "Top 6 words in cluster 2: ['november', 'poll', 'vote', 'challenge', 'bush', 'democrat']\n",
+      "Top 6 words in cluster 3: ['democrat', 'parties', 'republican', 'state', 'seat', 'senate']\n",
+      "Top 6 words in cluster 4: ['bush', 'kerry', 'poll', 'democrat', 'general', 'elect']\n",
+      "Top 6 words in cluster 5: ['bush', 'kerry', 'poll', 'presided', 'democrat', 'campaign']\n",
+      "Top 6 words in cluster 6: ['democrat', 'republican', 'elect', 'state', 'senate', 'parties']\n",
+      "Top 6 words in cluster 7: ['ability', 'abortion', 'absolute', 'abstain', 'abu', 'abuse']\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.cluster import KMeans\n",
+    "\n",
+    "# Performing k-means clustering with 7 clusters\n",
+    "kmeans = KMeans(n_clusters=7, random_state=1000).fit(data.iloc[:, 2:-1])\n",
+    "\n",
+    "# Assigning the cluster labels to the data DataFrame\n",
+    "data['cluster'] = kmeans.labels_\n",
+    "\n",
+    "# Looping over each cluster and computing the top 6 words\n",
+    "for i in range(1, 8):\n",
+    "    # Selecting only the articles in the current cluster\n",
+    "    cluster_i = data[data['cluster'] == i]\n",
+    "  \n",
+    "    # Computing the mean frequency of each word in the current cluster\n",
+    "    mean_freqs = cluster_i.iloc[:, 2:-1].mean()\n",
+    "    \n",
+    "    # Printing the 6 words that occur most frequently in the current cluster\n",
+    "    top_words = mean_freqs.sort_values(ascending=False)[:6].index.tolist()\n",
+    "    print(f\"Top 6 words in cluster {i}:\", top_words)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9cad730a",
+   "metadata": {},
+   "source": [
+    "## 7. Which k-means cluster best corresponds to the Iraq War? - Cluster 1\n",
+    "### which cluster best corresponds to the democratic party? - Cluster 4/5 (cannot conclude perfectly, output words look similar)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "id": "4a28a58b",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "col_0      0    1    2   3     4    5    6\n",
+      "cluster                                   \n",
+      "0        152    0    0   0     0    0    0\n",
+      "1          0  333    0   0     0    0    0\n",
+      "2          0    0  329   0     0    0    0\n",
+      "3          0    0    0  49     0    0    0\n",
+      "4          0    0    0   0  1860    0    0\n",
+      "5          0    0    0   0     0  305    0\n",
+      "6          0    0    0   0     0    0  402\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "\n",
+    "# Assigning the hierarchical clustering labels to a variable\n",
+    "hierarchical_labels = data['cluster']\n",
+    "\n",
+    "# Assigning the k-means clustering labels to a variable\n",
+    "kmeans_labels = kmeans.labels_\n",
+    "\n",
+    "# Creating the contingency table\n",
+    "ct = pd.crosstab(hierarchical_labels, kmeans_labels)\n",
+    "\n",
+    "# Printing the contingency table\n",
+    "print(ct)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.13"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
