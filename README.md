@@ -1,13 +1,13 @@
 # Machine-Learning-News-Article-Clustering
 This Python code demonstrates the process of clustering news articles or blog posts into distinct groups using two different clustering techniques: Hierarchical Clustering and K-Means Clustering. The dataset used contains articles with multiple features, and the goal is to group similar articles together based on their content.
 # Code Highlights
- <p>Data Loading and Preprocessing: The code starts by reading a CSV file ('dailykos.csv') containing the article data and performs data preprocessing by dropping rows with missing values. <br>Hierarchical Clustering:
-Computes Euclidean distances between all pairs of articles.
-Converts the distances into a square matrix.
-Generates a linkage matrix using the Ward method.
-Plots a dendrogram to visualize the hierarchical clustering.
-Assigns cluster labels based on a specified threshold.
- <br>K-Means Clustering:
+ <p>Data Loading and Preprocessing: The code starts by reading a CSV file ('dailykos.csv') containing the article data and performs data preprocessing by dropping rows with missing values.  <p><p>Hierarchical Clustering:
+Computes Euclidean distances between all pairs of articles.<br>
+Converts the distances into a square matrix.<br>
+Generates a linkage matrix using the Ward method.<br>
+Plots a dendrogram to visualize the hierarchical clustering.<br>
+Assigns cluster labels based on a specified threshold.<br><p>
+K-Means Clustering:
 Performs K-Means clustering with a specified number of clusters (in this case, 7 clusters).
 Assigns cluster labels to the articles.
 Identifies the cluster with the most and least number of observations.
