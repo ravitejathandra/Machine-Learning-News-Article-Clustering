@@ -23,11 +23,8 @@ It provides insights into which clusters may correspond to particular topics or 
 Dependencies
 Python 3.x
 Libraries: pandas, scipy, matplotlib, and scikit-learn
-Author
-[Your Name]
-
-License
-[Specify the license you want for your code, e.g., MIT License]
+# Author
+Ravi Teja Thandra
 
 Acknowledgments
-[List any data sources or references you used]
+Dailykos.csv data set
