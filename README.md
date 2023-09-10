@@ -38,12 +38,8 @@ This Python code demonstrates the process of clustering news articles or blog po
 
 ## Author
 
-[Your Name]
-
-## License
-
-[Specify the license you want for your code, e.g., MIT License]
+Ravi Teja Thandra
 
 ## Acknowledgments
 
-- [List any data sources or references you used]
+- 'dailykos.csv' Data set
